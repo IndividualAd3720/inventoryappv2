@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inventory Viewer</title>
+
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    input { width: 100%; padding: 12px; margin-bottom: 15px; font-size: 16px; }
+    .item { padding: 12px; border-bottom: 1px solid #ddd; }
+    .name { font-weight: bold; font-size: 18px; }
+    .low { color: red; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<h2>Inventory Viewer</h2>
+
+<input id="search" placeholder="Search product or SKU..." oninput="filter()">
+
+<div id="list">Loading inventory...</div>
+
+<script>
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTpU8yOd_umTKLsTMBqG4WBmREPAVZjGEHCUmv6H7UnsQP-N9mIYQxyA6lFIPP8HYUlgLwzMOjT_WmC/pub?gid=0&single=true&output=csv";
+
+async function loadInventory() {
+    const response = await fetch(SHEET_URL);
+    const text = await response.text();
+
+    const rows = text.split("\n").map(r => r.split(","));
+    rows.shift(); // remove header row
+
+    window.inventory = rows.map(r => ({
+        type: r[0],
+        name: r[1],
+        sku: r[2],
+        beginning: r[3],
+        current: Number(r[4])
+    }));
+
+    display(window.inventory);
+}
+
+function display(data) {
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+
+    data.forEach(i => {
+        list.innerHTML += `
+            <div class="item">
+                <div class="name">${i.name}</div>
+                SKU: ${i.sku}<br>
+                Type: ${i.type}<br>
+                Current Stock: 
+                    <span class="${i.current <= 3 ? 'low' : ''}">${i.current}</span>
+            </div>
+        `;
+    });
+}
+
+function filter() {
+    const q = document.getElementById("search").value.toLowerCase();
+    const filtered = window.inventory.filter(i =>
+        i.name.toLowerCase().includes(q) ||
+        i.sku.toLowerCase().includes(q)
+    );
+    display(filtered);
+}
+
+loadInventory();
+</script>
+
+</body>
+</html>
