@@ -1,1 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inventory Viewer</title>
 
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    input { width: 100%; padding: 12px; margin-bottom: 15px; font-size: 16px; }
+    .item { padding: 12px; border-bottom: 1px solid #ddd; }
+    .name { font-weight: bold; font-size: 18px; }
+    .low { color: red; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<h2>Inventory Viewer</h2>
+
+<input id="search" placeholder="Search product or SKU..." oninput="filter()">
+
+<div id="list">Loading inventory...</div>
+
+<script>
+const API_URL = "https://sheetdb.io/api/v1/6rcbxm154vowg";
+
+async function loadInventory() {
+    const response = await fetch(API_URL);
+    const data = await response.json();
+
+    window.inventory = data.map(r => ({
+        type: r["Product Type"],
+        name: r["Product Name"],
+        sku: r["SKU"],
+        beginning: Number(r["Beginning Quantity"]),
+        current: Number(r["Current Quantity"])
+    }));
+
+    display(window.inventory);
+}
+
+function display(data) {
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+
+    data.forEach(i => {
+        list.innerHTML += `
+            <div class="item">
+                <div class="name">${i.name}</div>
+                SKU: ${i.sku}<br>
+                Type: ${i.type}<br>
+                Current Stock: 
+                    <span class="${i.current <= 3 ? 'low' : ''}">${i.current}</span>
+            </div>
+        `;
+    });
+}
+
+function filter() {
+    const q = document.getElementById("search").value.toLowerCase();
+    const filtered = window.inventory.filter(i =>
+        i.name.toLowerCase().includes(q) ||
+        i.sku.toLowerCase().includes(q)
+    );
+    display(filtered);
+}
+
+loadInventory();
+</script>
+
+</body>
+</html>
