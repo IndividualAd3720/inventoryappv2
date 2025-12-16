@@ -3,70 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Inventory Viewer</title>
+  <title>FCV Retail Ops</title>
 
   <style>
-    body { font-family: Arial; margin: 20px; }
-    input { width: 100%; padding: 12px; margin-bottom: 15px; font-size: 16px; }
-    .item { padding: 12px; border-bottom: 1px solid #ddd; }
-    .name { font-weight: bold; font-size: 18px; }
-    .low { color: red; font-weight: bold; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #555;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      max-width: 300px;
+      margin: 15px auto;
+      padding: 15px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      color: white;
+    }
+
+    .inventory {
+      background: #2c7be5;
+    }
+
+    .order {
+      background: #28a745;
+    }
   </style>
 </head>
 <body>
 
-<h2>Inventory Viewer</h2>
+<h1>FCV Retail Ops</h1>
+<p>Internal tools for inventory & order management</p>
 
-<input id="search" placeholder="Search product or SKU..." oninput="filter()">
+<a href="inventory.html" class="btn inventory">
+  🔍 Check Inventory
+</a>
 
-<div id="list">Loading inventory...</div>
-
-<script>
-const API_URL = "https://sheetdb.io/api/v1/6rcbxm154vowg";
-
-async function loadInventory() {
-    const response = await fetch(API_URL);
-    const data = await response.json();
-
-    window.inventory = data.map(r => ({
-        type: r["Product Type"],
-        name: r["Product Name"],
-        sku: r["SKU"],
-        beginning: Number(r["Beginning Quantity"]),
-        current: Number(r["Current Quantity"])
-    }));
-
-    display(window.inventory);
-}
-
-function display(data) {
-    const list = document.getElementById("list");
-    list.innerHTML = "";
-
-    data.forEach(i => {
-        list.innerHTML += `
-            <div class="item">
-                <div class="name">${i.name}</div>
-                SKU: ${i.sku}<br>
-                Type: ${i.type}<br>
-                Current Stock: 
-                    <span class="${i.current <= 3 ? 'low' : ''}">${i.current}</span>
-            </div>
-        `;
-    });
-}
-
-function filter() {
-    const q = document.getElementById("search").value.toLowerCase();
-    const filtered = window.inventory.filter(i =>
-        i.name.toLowerCase().includes(q) ||
-        i.sku.toLowerCase().includes(q)
-    );
-    display(filtered);
-}
-
-loadInventory();
-</script>
+<a href="order.html" class="btn order">
+  📝 Submit Internal Order
+</a>
 
 </body>
 </html>
